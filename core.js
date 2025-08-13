@@ -29,17 +29,44 @@ Aura.fn = Aura.prototype = {
   constructor: Aura
 }
 
+// CRC calculation function using current time as basis
+Aura.prototype.calculateTimeCRC = function(data) {
+  const currentTime = Date.now();
+  let crc = currentTime & 0xFFFFFFFF; // Use current time as initial CRC value
+
+  // Convert data to string if it's not already
+  const dataStr = typeof data === 'string' ? data : JSON.stringify(data);
+
+  for (let i = 0; i < dataStr.length; i++) {
+    const char = dataStr.charCodeAt(i);
+    crc = crc ^ char;
+
+    for (let j = 0; j < 8; j++) {
+      if (crc & 1) {
+        crc = (crc >>> 1) ^ 0xEDB88320;
+      } else {
+        crc = crc >>> 1;
+      }
+    }
+  }
+
+  // XOR with current time again for additional time-based entropy
+  crc = crc ^ (currentTime >>> 16);
+
+  return (crc >>> 0); // Convert to unsigned 32-bit integer
+};
+
 // Collect fingerprint
 Aura.prototype.collect = function () {
   return new Promise((resolve, reject) => {
+    const collectionStartTime = performance.now();
+
     // Create promises for all functions to run in parallel
     const functionPromises = Aura.fn.functionsNames.map(async (funcName) => {
       if (typeof Aura.fn[funcName] === 'function') {
-        const time_start = performance.now();
         const val = await Aura.fn[funcName]();
-        const time_end = performance.now();
         return {
-          [funcName]: Object.assign({ val }, { t: time_end - time_start })
+          [funcName]: Object.assign({ val })
         };
       } else {
         console.warn(funcName, ' is not available!');
@@ -66,7 +93,19 @@ Aura.prototype.collect = function () {
           this.fingerprint = Object.assign(this.fingerprint, result);
         }
       });
+
       const end = performance.now();
+
+      // Calculate CRC checksum using current time and fingerprint data
+      const fingerprintCRC = this.calculateTimeCRC(this.fingerprint);
+
+      // Add CRC and timing information to fingerprint
+      this.fingerprint._meta = {
+        crc: fingerprintCRC,
+        collectionTime: end - collectionStartTime,
+        timestamp: Date.now()
+      };
+
       resolve(_aura);
     })
     .catch((error) => {

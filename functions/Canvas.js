@@ -17,7 +17,10 @@ export default function () {
   const canvas = document.createElement('canvas')
   canvas.width = width
   canvas.height = height
-  const canvasResults = getHashesForCanvas(canvas, false)
+  // Generate random color in hex format (#FF0000)
+  const randomColor = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0').toUpperCase()
+
+  const canvasResults = getHashesForCanvas(canvas, randomColor, false)
 
   const notSupportedMessage = -1
   let offscreenResults = {
@@ -25,13 +28,14 @@ export default function () {
     rSum: notSupportedMessage,
     gSum: notSupportedMessage,
     bSum: notSupportedMessage,
-    aSum: notSupportedMessage
+    aSum: notSupportedMessage,
+    color: notSupportedMessage
   }
   try {
     const offscreenCanvas = document.createElement('canvas')
     offscreenCanvas.width = width
     offscreenCanvas.height = height
-    offscreenResults = getHashesForCanvas(offscreenCanvas, true)
+    offscreenResults = getHashesForCanvas(offscreenCanvas, randomColor, true)
   } catch (error) {
   }
   const offWorks = canvasResults.rSum === offscreenResults.rSum &&
@@ -45,45 +49,20 @@ export default function () {
     aSum: canvasResults.aSum,
     pixelSum: canvasResults.pixelSum,
     offWorks: offWorks,
+    color: randomColor,
     protocolVersion: 1
   }
 }
 
-function renderOnCanvas (canvas, renderer) {
+function renderOnCanvas (canvas, renderer, color) {
   var ctx = canvas.getContext('2d')
 
-  // Define colors for the chessboard squares
-  const colors = [
-    '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF',
-    '#FFA500', '#800080', '#008000', '#FFC0CB', '#A52A2A', '#808080',
-    '#000080', '#800000', '#008080', '#C0C0C0', '#FFD700', '#DC143C',
-    '#32CD32', '#4169E1', '#FF1493', '#00CED1', '#FF6347', '#9370DB',
-    '#20B2AA', '#F0E68C', '#DDA0DD', '#98FB98', '#F5DEB3', '#CD853F'
-  ]
-
-  // Square size (odd number)
-  const squareSize = 3
-  const rows = Math.floor(canvas.height / squareSize)
-  const cols = Math.floor(canvas.width / squareSize)
-
-  // Fill canvas with chessboard pattern
-  let colorIndex = 0
-  for (let row = 0; row < rows; row++) {
-    for (let col = 0; col < cols; col++) {
-      // Calculate position
-      const x = col * squareSize
-      const y = row * squareSize
-
-      // Set color (cycle through colors array)
-      ctx.fillStyle = colors[colorIndex % colors.length]
-
-      // Draw square
-      ctx.fillRect(x, y, squareSize, squareSize)
-
-      // Move to next color
-      colorIndex++
-    }
-  }
+  // Square size (even number)
+  const squareSize = 18
+  // Set the random color
+  ctx.fillStyle = color
+  // Draw square
+  ctx.fillRect(5, 5, squareSize, squareSize)
 
   if (renderer !== null) {
     var bitmapOne = canvas.transferToImageBitmap()
@@ -118,17 +97,17 @@ function extractHashesFromCanvas(canvasElement, canvasObject) {
     rSum: sumRed,
     gSum: sumGreen,
     bSum: sumBlue,
-    aSum: sumAlpha
+    aSum: sumAlpha,
   }
 }
 
-function getHashesForCanvas (canvas, isOffscreen) {
+function getHashesForCanvas (canvas, color, isOffscreen) {
   if (isOffscreen) {
     var offscreenCanvas = new OffscreenCanvas(canvas.width, canvas.height)
-    renderOnCanvas(offscreenCanvas, null)
+    renderOnCanvas(offscreenCanvas, null, color)
     return extractHashesFromCanvas(offscreenCanvas, null)
   } else {
-    renderOnCanvas(canvas, null)
+    renderOnCanvas(canvas, null, color)
     return extractHashesFromCanvas(canvas, null)
   }
 }

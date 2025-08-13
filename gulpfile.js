@@ -201,10 +201,10 @@ function addFetchDataFunctionality(code) {
 (function() {
   // Default configuration
   const defaultConfig = {
-    apiEndpoint: "https://sl-st.com/api/v1/stat/pub/metrics/",
+    apiEndpoint: "https://your-domain.com/metrics/",
     userID: null,
     token: null,
-    autoFetch: true
+    buttonsEvents: true
   };
 
   let config = { ...defaultConfig };
@@ -219,31 +219,44 @@ function addFetchDataFunctionality(code) {
     const apiEndpoint = auraScript.getAttribute('data-api-endpoint');
     const userID = auraScript.getAttribute('user-id');
     const token = auraScript.getAttribute('data-token');
-    const autoFetch = auraScript.getAttribute('data-auto-fetch');
+    const buttonsEvents = auraScript.getAttribute('buttons-events');
 
     if (apiEndpoint) config.apiEndpoint = apiEndpoint;
     if (token) config.token = token;
     if (userID) config.userID = userID;
-    if (autoFetch !== null) config.autoFetch = autoFetch === 'true';
+    if (buttonsEvents !== null) config.buttonsEvents = buttonsEvents === 'true';
   }
 
   // Set the global config (fallback to existing AuraConfig if already set)
   window.AuraConfig = window.AuraConfig || config;
 
-  // Auto-fetch function
-  async function auraFetchData() {
+  async function auraFetchData(eventType = 'Visit', elementId = null, name = null) {
     try {
       const aura = new Aura({});
       const result = await aura.collect();
-      
+
       const headers = {
         "Content-Type": "application/json"
       };
 
+      // Prepare request body with event type and button ID if provided
+      const requestBody = { 
+        query: result.fingerprint,
+        category: eventType,
+      };
+
+      if (elementId) {
+        requestBody.elementId = elementId;
+      }
+
+      if (name) {
+        requestBody.name = name;
+      }
+
       const response = await fetch(window.AuraConfig.apiEndpoint + '/' + window.AuraConfig.userID + "/" + window.AuraConfig.token, {
         method: "POST",
         headers: headers,
-        body: JSON.stringify({ query: result.fingerprint })
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
@@ -256,7 +269,10 @@ function addFetchDataFunctionality(code) {
       window.dispatchEvent(new CustomEvent('auraDataReceived', { 
         detail: { 
           fingerprint: result.fingerprint, 
-          apiResponse: data 
+          apiResponse: data,
+          category: eventType,
+          elementId: elementId,
+          name: buttonName
         } 
       }));
 
@@ -269,13 +285,60 @@ function addFetchDataFunctionality(code) {
     }
   }
 
-  // Auto-execute if enabled
-  if (window.AuraConfig.autoFetch) {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', auraFetchData);
-    } else {
-      auraFetchData();
+  // Auto-execute if enabled (page visit event)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => auraFetchData('Visit'));
+  } else {
+    auraFetchData('Visit');
+  }
+
+  // Add button click event listeners
+  if (config.buttonsEvents) {
+    function setupButtonListeners() {
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach(button => {
+        button.addEventListener('click', function(event) {
+          const buttonId = this.id || this.getAttribute('data-id') || 'button-' + Array.from(buttons).indexOf(this);
+          const buttonName = this.textContent.trim() || this.getAttribute('aria-label') || this.getAttribute('title') || 'Unnamed Button';
+          auraFetchData('Click', buttonId, buttonName);
+        });
+      });
     }
+
+    // Setup button listeners when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupButtonListeners);
+    } else {
+      setupButtonListeners();
+    }
+
+    // Also setup listeners for dynamically added buttons
+    const observer = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        mutation.addedNodes.forEach(function(node) {
+          if (node.nodeType === 1) { // Element node
+            if (node.tagName === 'BUTTON') {
+              const buttonId = node.id || node.getAttribute('data-id') || 'button-' + Date.now();
+              const buttonName = node.textContent.trim() || node.getAttribute('aria-label') || node.getAttribute('title') || 'Unnamed Button';
+              node.addEventListener('click', function(event) {
+                auraFetchData('Click', buttonId, buttonName);
+              });
+            }
+            // Also check for buttons within added elements
+            const buttons = node.querySelectorAll && node.querySelectorAll('button');
+            if (buttons) {
+              buttons.forEach(button => {
+                const buttonId = button.id || button.getAttribute('data-id') || 'button-' + Date.now();
+                const buttonName = button.textContent.trim() || button.getAttribute('aria-label') || button.getAttribute('title') || 'Unnamed Button';
+                button.addEventListener('click', function(event) {
+                  auraFetchData('Click', buttonId, buttonName);
+                });
+              });
+            }
+          }
+        });
+      });
+    });
   }
 
   // Expose the function globally for manual calls
@@ -393,7 +456,20 @@ gulp.task('build', gulp.series(
     const code = await bundle();
     copyAssets(false); // Pass isDev=false for production build
 
-    // Create external config version
+    // Ensure dist directory exists
+    try {
+      fs.accessSync(PATHS.dist);
+    } catch (err) {
+      // Directory doesn't exist, create it
+      fs.mkdirSync(PATHS.dist, { recursive: true });
+    }
+
+    // Create development version (aura.js)
+    const cleanCode = removeLicenses(code);
+    const codeWithFetchData = addFetchDataFunctionality(cleanCode);
+    fs.writeFileSync(path.join(PATHS.dist, 'aura.js'), codeWithFetchData);
+
+    // Create minified production version (aura.min.js)
     await processBundle(code);
 
     return Promise.resolve();

@@ -17,14 +17,6 @@ export default function () {
   return {
     navigatorLanguages: navigatorLocale,
     locale: intlLocale.locale,
-    maximumFractionDigits: intlLocale.maximumFractionDigits,
-    minimumFractionDigits: intlLocale.minimumFractionDigits,
-    minimumIntegerDigits: intlLocale.minimumIntegerDigits,
-    notation: intlLocale.notation,
-    numberingSystem: intlLocale.numberingSystem,
-    signDisplay: intlLocale.signDisplay,
-    style: intlLocale.style,
-    useGrouping: intlLocale.useGrouping,
     protocolVersion: 1
   }
 }

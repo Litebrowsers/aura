@@ -8,25 +8,25 @@
 
   <script
           src="aura/aura.js"
-          data-api-endpoint="https://your-domain.example/metrics"
+          data-api-endpoint="https://your-domain.com/metrics"
           user-id="user-id"
           data-token="data-token"
-          data-auto-fetch="true">
+          buttons-events="false">
   </script>
-  
+
   <style>
     body {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
     }
-    
+
     .card {
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.2);
       transition: all 0.3s ease;
     }
-    
+
     .highlight {
       background-color: rgba(255, 255, 0, 0.2);
       padding: 2px 4px;
@@ -35,37 +35,171 @@
   </style>
 </head>
 <body class="text-white p-8">
-  <div class="max-w-4xl mx-auto">
-    <h1 class="text-4xl font-bold text-center mb-8">Aura Data Attribute Configuration</h1>
-    
-    <div class="card rounded-lg p-6 mb-8">
-      <h2 class="text-2xl font-semibold mb-4">🎯 Data Attribute Approach</h2>
-      <p class="text-gray-300 mb-4">
-        This approach uses <span class="highlight">data attributes</span> on the script tag to configure Aura, similar to some analytics libraries.
-      </p>
-      <div class="bg-gray-800 p-4 rounded-lg text-sm font-mono">
-        <div class="text-purple-400">&lt;script</div>
-        <div class="ml-4 text-purple-400">src="aura/aura.min.js"</div>
-        <div class="ml-4 text-yellow-400">data-api-endpoint="https://sl-st.com/api/v1/stat/pub/metrics"</div>
-        <div class="ml-4 text-yellow-400">user-id="your-user-id"</div>
-        <div class="ml-4 text-yellow-400">data-token="your-api-token-here"</div>
-        <div class="ml-4 text-yellow-400">data-auto-fetch="true"&gt;</div>
-        <div class="text-purple-400">&lt;/script&gt;</div>
-      </div>
-    </div>
-    
-    <div class="card rounded-lg p-6">
-      <h2 class="text-2xl font-semibold mb-4">Configuration Status</h2>
-      <div id="config-status">Loading...</div>
+<div class="max-w-4xl mx-auto">
+  <h1 class="text-4xl font-bold text-center mb-8">Aura Data Attribute Configuration</h1>
+
+  <div class="card rounded-lg p-6 mb-8">
+    <h2 class="text-2xl font-semibold mb-4">🎯 Data Attribute Approach</h2>
+    <p class="text-gray-300 mb-4">
+      This approach uses <span class="highlight">data attributes</span> on the script tag to configure Aura, similar to some analytics libraries.
+    </p>
+    <div class="bg-gray-800 p-4 rounded-lg text-sm font-mono">
+      <div class="text-purple-400">&lt;script</div>
+      <div class="ml-4 text-purple-400">src="aura/aura.min.js"</div>
+      <div class="ml-4 text-yellow-400">data-api-endpoint="https://sl-st.com/api/v1/stat/pub/metrics"</div>
+      <div class="ml-4 text-yellow-400">user-id="your-user-id"</div>
+      <div class="ml-4 text-yellow-400">data-token="your-api-token-here"</div>
+      <div class="ml-4 text-yellow-400">data-auto-fetch="true"&gt;</div>
+      <div class="text-purple-400">&lt;/script&gt;</div>
     </div>
   </div>
 
-  <script>
-    // Test if data attributes were read
-    setTimeout(() => {
-      const statusDiv = document.getElementById('config-status');
-      if (window.AuraConfig) {
-        statusDiv.innerHTML = `
+  <div class="card rounded-lg p-6 mb-8">
+    <h2 class="text-2xl font-semibold mb-4">Configuration Status</h2>
+    <div id="config-status">Loading...</div>
+  </div>
+
+  <!-- Statistics Examples Block -->
+  <div class="card rounded-lg p-6 mb-8">
+    <div class="border-l-4 border-orange-400 pl-4 mb-6">
+      <h2 class="text-3xl font-bold mb-2">📊 Examples of work.</h2>
+      <p class="text-gray-300 text-lg">
+        Those form show different ways of collecting users data for building analytics.
+        Each form could be used for tracking actions of users.
+      </p>
+    </div>
+
+    <!-- Contact Form -->
+    <div class="mb-8 border border-white/10 rounded-lg p-6">
+      <h3 class="text-2xl font-semibold mb-4">📝 Contact Form</h3>
+      <form id="contact-form" class="space-y-4">
+        <div>
+          <label for="name" class="block text-sm font-medium mb-2">Name</label>
+          <input type="text" id="name" name="name" class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="Enter your name">
+        </div>
+        <div>
+          <label for="email" class="block text-sm font-medium mb-2">Email</label>
+          <input type="email" id="email" name="email" class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="Enter your email">
+        </div>
+        <div>
+          <label for="message" class="block text-sm font-medium mb-2">Message</label>
+          <textarea id="message" name="message" rows="4" class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400" placeholder="Enter your message"></textarea>
+        </div>
+        <div class="flex gap-4">
+          <button type="submit" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg font-medium transition-colors">Send Message</button>
+          <button type="reset" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg font-medium transition-colors">Clear Form</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Login Form -->
+    <div class="mb-8 border border-white/10 rounded-lg p-6">
+      <h3 class="text-2xl font-semibold mb-4">🔐 Login Form</h3>
+      <form id="login-form" class="space-y-4">
+        <div>
+          <label for="username" class="block text-sm font-medium mb-2">Username</label>
+          <input type="text" id="username" name="username" class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter username">
+        </div>
+        <div>
+          <label for="password" class="block text-sm font-medium mb-2">Password</label>
+          <input type="password" id="password" name="password" class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Enter password">
+        </div>
+        <div class="flex items-center">
+          <input type="checkbox" id="remember" name="remember" class="mr-2 rounded">
+          <label for="remember" class="text-sm">Remember me</label>
+        </div>
+        <div class="flex gap-4">
+          <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors">Login</button>
+          <button type="button" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg font-medium transition-colors">Forgot Password?</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Survey Form -->
+    <div class="mb-8 border border-white/10 rounded-lg p-6">
+      <h3 class="text-2xl font-semibold mb-4">📊 Survey Form</h3>
+      <form id="survey-form" class="space-y-4">
+        <div>
+          <label for="rating" class="block text-sm font-medium mb-2">Rate our service (1-5)</label>
+          <select id="rating" name="rating" class="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-400">
+            <option value="">Select rating</option>
+            <option value="1">1 - Poor</option>
+            <option value="2">2 - Fair</option>
+            <option value="3">3 - Good</option>
+            <option value="4">4 - Very Good</option>
+            <option value="5">5 - Excellent</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2">Which features do you use?</label>
+          <div class="space-y-2">
+            <label class="flex items-center">
+              <input type="checkbox" name="features" value="analytics" class="mr-2 rounded">
+              <span>Analytics</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="features" value="reporting" class="mr-2 rounded">
+              <span>Reporting</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" name="features" value="dashboard" class="mr-2 rounded">
+              <span>Dashboard</span>
+            </label>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-2">How often do you use our service?</label>
+          <div class="space-y-2">
+            <label class="flex items-center">
+              <input type="radio" name="frequency" value="daily" class="mr-2">
+              <span>Daily</span>
+            </label>
+            <label class="flex items-center">
+              <input type="radio" name="frequency" value="weekly" class="mr-2">
+              <span>Weekly</span>
+            </label>
+            <label class="flex items-center">
+              <input type="radio" name="frequency" value="monthly" class="mr-2">
+              <span>Monthly</span>
+            </label>
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <button type="submit" class="px-6 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-medium transition-colors">Submit Survey</button>
+          <button type="reset" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg font-medium transition-colors">Reset</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Search Form -->
+    <div class="border border-white/10 rounded-lg p-6">
+      <h3 class="text-2xl font-semibold mb-4">🔍 Search Form</h3>
+      <form id="search-form" class="space-y-4">
+        <div class="flex gap-4">
+          <input type="search" id="search-query" name="query" class="flex-1 px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Search for anything...">
+          <select id="search-category" name="category" class="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-400">
+            <option value="all">All Categories</option>
+            <option value="docs">Documentation</option>
+            <option value="examples">Examples</option>
+            <option value="api">API Reference</option>
+          </select>
+        </div>
+        <div class="flex gap-4">
+          <button type="submit" class="px-6 py-2 bg-yellow-600 hover:bg-yellow-700 rounded-lg font-medium transition-colors">Search</button>
+          <button type="button" id="advanced-search" class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium transition-colors">Advanced Search</button>
+          <button type="reset" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg font-medium transition-colors">Clear</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Test if data attributes were read
+  setTimeout(() => {
+    const statusDiv = document.getElementById('config-status');
+    if (window.AuraConfig) {
+      statusDiv.innerHTML = `
           <div class="text-green-400">✅ Configuration loaded successfully!</div>
           <div class="mt-2 text-sm">
             <div>API Endpoint: ${window.AuraConfig.apiEndpoint}</div>
@@ -73,10 +207,86 @@
             <div>Auto Fetch: ${window.AuraConfig.autoFetch}</div>
           </div>
         `;
+    } else {
+      statusDiv.innerHTML = '<div class="text-red-400">❌ Configuration not loaded - this approach needs implementation</div>';
+    }
+  }, 100);
+
+  // Form interaction handlers
+  document.addEventListener('DOMContentLoaded', function() {
+    // Contact Form
+    document.getElementById('contact-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const message = document.getElementById('message').value;
+
+      if (name && email && message) {
+        alert(`Thank you, ${name}! Your message has been sent successfully.`);
+        this.reset();
       } else {
-        statusDiv.innerHTML = '<div class="text-red-400">❌ Configuration not loaded - this approach needs implementation</div>';
+        alert('Please fill in all fields.');
       }
-    }, 100);
-  </script>
+    });
+
+    // Login Form
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const remember = document.getElementById('remember').checked;
+
+      if (username && password) {
+        alert(`Welcome back, ${username}! ${remember ? 'You will be remembered.' : ''}`);
+        this.reset();
+      } else {
+        alert('Please enter both username and password.');
+      }
+    });
+
+    // Survey Form
+    document.getElementById('survey-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const rating = document.getElementById('rating').value;
+      const features = Array.from(document.querySelectorAll('input[name="features"]:checked')).map(cb => cb.value);
+      const frequency = document.querySelector('input[name="frequency"]:checked')?.value;
+
+      if (rating && frequency) {
+        alert(`Thank you for your feedback! Rating: ${rating}, Features: ${features.join(', ')}, Frequency: ${frequency}`);
+        this.reset();
+      } else {
+        alert('Please complete the rating and frequency questions.');
+      }
+    });
+
+    // Search Form
+    document.getElementById('search-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const query = document.getElementById('search-query').value;
+      const category = document.getElementById('search-category').value;
+
+      if (query) {
+        alert(`Searching for "${query}" in ${category === 'all' ? 'all categories' : category}...`);
+      } else {
+        alert('Please enter a search query.');
+      }
+    });
+
+    // Advanced Search Button
+    document.getElementById('advanced-search').addEventListener('click', function() {
+      alert('Advanced search functionality would be implemented here.');
+    });
+
+    // Forgot Password Button
+    document.querySelector('#login-form button[type="button"]').addEventListener('click', function() {
+      const username = document.getElementById('username').value;
+      if (username) {
+        alert(`Password reset link sent to the email associated with ${username}.`);
+      } else {
+        alert('Please enter your username first.');
+      }
+    });
+  });
+</script>
 </body>
 </html>

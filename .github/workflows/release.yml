@@ -1,0 +1,97 @@
+name: Build and Release Aura
+
+on:
+  push:
+    tags:
+      - 'v*'  # Triggers on version tags like v1.0.0, v1.2.3, etc.
+  workflow_dispatch: {}
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build aura.min.js
+      run: npm run build
+
+    - name: Verify build output
+      run: |
+        ls -la dist/apps/aura/
+        if [ ! -f "dist/apps/aura/aura.min.js" ]; then
+          echo "Error: aura.min.js not found!"
+          exit 1
+        fi
+        if [ ! -f "dist/apps/aura/aura.js" ]; then
+          echo "Error: aura.js not found!"
+          exit 1
+        fi
+        echo "Build successful - both aura.js and aura.min.js created"
+
+    - name: Get version from tag or package.json
+      id: get_version
+      run: |
+        if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" == refs/tags/* ]]; then
+          # Extract version from tag
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "TAG_NAME=$VERSION" >> $GITHUB_OUTPUT
+        else
+          # Use version from package.json for manual dispatch
+          VERSION=$(node -p "require('./package.json').version")
+          TAG_NAME="v$VERSION"
+          echo "VERSION=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        name: Aura ${{ steps.get_version.outputs.VERSION }}
+        body: |
+          ## Aura Library Release ${{ steps.get_version.outputs.VERSION }}
+
+          ### What's included:
+          - `aura.min.js` - Minified and obfuscated production build
+          - Complete browser fingerprinting functionality
+          - Data attribute configuration support
+          - Auto-fetch capabilities
+
+          ### Usage:
+          ```html
+          <script 
+            src="aura.min.js"
+            data-api-endpoint="https://your-domain.com/api/metrics"
+            data-token="your-api-token"
+            buttons-events="false">
+          </script>
+          ```
+
+          ### Manual Integration:
+          ```javascript
+          const aura = new Aura({ timeout: 3000 });
+          aura.collect().then((result) => {
+            console.log('Fingerprint collected:', result.fingerprint);
+          });
+          ```
+
+          For more information, see the [README](https://github.com/${{ github.repository }}/blob/main/README.md).
+        draft: false
+        prerelease: false
+        files: |
+          ./dist/apps/aura/aura.min.js
+          ./dist/apps/aura/aura.js
