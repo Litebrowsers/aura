@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura Data Attribute Configuration</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script
+          src="aura/aura.js"
+          data-api-endpoint="https://your-domain.example/metrics"
+          user-id="user-id"
+          data-token="data-token"
+          data-auto-fetch="true">
+  </script>
+  
+  <style>
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+    
+    .highlight {
+      background-color: rgba(255, 255, 0, 0.2);
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="text-white p-8">
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-4xl font-bold text-center mb-8">Aura Data Attribute Configuration</h1>
+    
+    <div class="card rounded-lg p-6 mb-8">
+      <h2 class="text-2xl font-semibold mb-4">🎯 Data Attribute Approach</h2>
+      <p class="text-gray-300 mb-4">
+        This approach uses <span class="highlight">data attributes</span> on the script tag to configure Aura, similar to some analytics libraries.
+      </p>
+      <div class="bg-gray-800 p-4 rounded-lg text-sm font-mono">
+        <div class="text-purple-400">&lt;script</div>
+        <div class="ml-4 text-purple-400">src="aura/aura.min.js"</div>
+        <div class="ml-4 text-yellow-400">data-api-endpoint="https://sl-st.com/api/v1/stat/pub/metrics"</div>
+        <div class="ml-4 text-yellow-400">user-id="your-user-id"</div>
+        <div class="ml-4 text-yellow-400">data-token="your-api-token-here"</div>
+        <div class="ml-4 text-yellow-400">data-auto-fetch="true"&gt;</div>
+        <div class="text-purple-400">&lt;/script&gt;</div>
+      </div>
+    </div>
+    
+    <div class="card rounded-lg p-6">
+      <h2 class="text-2xl font-semibold mb-4">Configuration Status</h2>
+      <div id="config-status">Loading...</div>
+    </div>
+  </div>
+
+  <script>
+    // Test if data attributes were read
+    setTimeout(() => {
+      const statusDiv = document.getElementById('config-status');
+      if (window.AuraConfig) {
+        statusDiv.innerHTML = `
+          <div class="text-green-400">✅ Configuration loaded successfully!</div>
+          <div class="mt-2 text-sm">
+            <div>API Endpoint: ${window.AuraConfig.apiEndpoint}</div>
+            <div>Token: ${window.AuraConfig.token ? '***' + window.AuraConfig.token.slice(-4) : 'Not set'}</div>
+            <div>Auto Fetch: ${window.AuraConfig.autoFetch}</div>
+          </div>
+        `;
+      } else {
+        statusDiv.innerHTML = '<div class="text-red-400">❌ Configuration not loaded - this approach needs implementation</div>';
+      }
+    }, 100);
+  </script>
+</body>
+</html>

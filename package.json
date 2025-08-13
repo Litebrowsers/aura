@@ -1,0 +1,21 @@
+{
+  "name": "aura",
+  "version": "1.0.0",
+  "description": "Client-side metrics collection library.",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx gulp aura-build",
+    "dev-build": "npx gulp dev-build"
+  },
+  "author": "Litebrowsers",
+  "license": "ISC",
+  "dependencies": {
+    "gulp": "^5.0.0",
+    "javascript-obfuscator": "^4.0.0",
+    "rollup": "^2.60.2",
+    "uglify-js": "^3.17.4"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.1.3"
+  }
+}
