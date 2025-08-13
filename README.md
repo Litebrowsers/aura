@@ -37,9 +37,6 @@ Aura collects the following types of browser data:
 ```html
 <script 
   src="path/to/aura.min.js"
-  data-api-endpoint="https://your-domain.com/api/metrics"
-  data-token="your-api-token"
-  data-auto-fetch="true">
 </script>
 ```
 
@@ -91,7 +88,7 @@ aura.collect().then((auraInstance) => {
   // Access individual metrics with timing
   Object.keys(auraInstance.fingerprint).forEach(key => {
     const metric = auraInstance.fingerprint[key];
-    console.log(`${key}:`, metric.val, `(${metric.t}ms)`);
+    console.log(`${key}:`, metric.val);
   });
 });
 ```
@@ -115,8 +112,9 @@ aura.collect().then((result) => {
   src="aura/aura.min.js"
   data-api-endpoint="https://analytics.example.com/collect"
   data-token="your-secret-token"
-  data-auto-fetch="true"
-  user-id="user-123">
+  user-id="user-123"
+  buttons-events="false"
+ >
 </script>
 ```
 
@@ -153,7 +151,6 @@ aura.collect().then((auraInstance) => {
 
 Object containing all collected fingerprinting data. Each property contains:
 - `val`: The collected value
-- `t`: Time taken to collect this data (in milliseconds)
 
 ## Building from Source
 
