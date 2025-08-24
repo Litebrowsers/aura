@@ -201,7 +201,7 @@ function addFetchDataFunctionality(code) {
 (function() {
   // Default configuration
   const defaultConfig = {
-    apiEndpoint: "https://your-domain.com/metrics/",
+    apiEndpoint: "",
     userID: null,
     token: null,
     buttonsEvents: true
@@ -225,6 +225,10 @@ function addFetchDataFunctionality(code) {
     if (token) config.token = token;
     if (userID) config.userID = userID;
     if (buttonsEvents !== null) config.buttonsEvents = buttonsEvents === 'true';
+  }
+  
+  if (config.apiEndpoint === "") {
+    return;
   }
 
   // Set the global config (fallback to existing AuraConfig if already set)
