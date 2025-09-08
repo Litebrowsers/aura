@@ -46,12 +46,66 @@ Aura collects the following types of browser data:
 <script src="path/to/aura.min.js"></script>
 <script>
   const aura = new Aura({ timeout: 3000 });
-  
+
   aura.collect().then((result) => {
     console.log('Fingerprint collected:', result.fingerprint);
     // Send data to your server
   });
 </script>
+```
+
+## Build Commands
+
+### Install Dependencies
+```bash
+npm install
+```
+
+### Build for Production
+```bash
+npm run build
+```
+
+### Build for Development
+```bash
+npm run dev-build
+```
+
+### Custom Function Selection
+
+You can specify which fingerprinting functions to include in your build:
+
+#### Via Command Line
+```bash
+# Build with specific functions
+gulp build --functions=Timezone,Canvas,Screen
+gulp dev-build --functions=Connection,WebglMetadata
+
+# Available functions: Timezone, Locale, Screen, SimpleUserAgent, Page, Canvas, Font, WebglMetadata, Connection
+```
+
+#### Via Environment Variable
+```bash
+# Set functions via environment variable
+AURA_FUNCTIONS=Timezone,Canvas,Screen gulp build
+AURA_FUNCTIONS=Connection,WebglMetadata gulp dev-build
+```
+
+### Help and Available Functions
+
+```bash
+# Show help with usage examples
+gulp help
+
+# List all available functions
+gulp list-functions
+```
+
+### Default Function List
+
+By default, builds use the functions specified in `inputs/aura.js`:
+```javascript
+FUNCTION_NAMES: ["Timezone","Locale","Screen","SimpleUserAgent", "Page", "Canvas", "Font", "WebglMetadata"]
 ```
 
 ## Configuration Options
@@ -84,7 +138,7 @@ const aura = new Aura();
 // Collect fingerprint data
 aura.collect().then((auraInstance) => {
   console.log('Collected fingerprint:', auraInstance.fingerprint);
-  
+
   // Access individual metrics with timing
   Object.keys(auraInstance.fingerprint).forEach(key => {
     const metric = auraInstance.fingerprint[key];
