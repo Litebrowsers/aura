@@ -30,6 +30,65 @@ const PATHS = {
 // Import configuration
 const auraInputs = require('./inputs/aura');
 
+// Get available function names from functions directory
+function getAvailableFunctions() {
+  const functionsDir = './functions';
+  try {
+    return fs.readdirSync(functionsDir)
+      .filter(file => file.endsWith('.js') && file !== 'index.js')
+      .map(file => file.replace('.js', ''));
+  } catch (error) {
+    console.error('Error reading functions directory:', error);
+    return [];
+  }
+}
+
+// Parse command line arguments for custom function selection
+function parseCustomFunctions() {
+  const args = process.argv.slice(2);
+  const functionsArg = args.find(arg => arg.startsWith('--functions='));
+
+  if (functionsArg) {
+    const customFunctions = functionsArg.split('=')[1].split(',').map(f => f.trim());
+    const availableFunctions = getAvailableFunctions();
+
+    // Validate that all specified functions exist
+    const invalidFunctions = customFunctions.filter(f => !availableFunctions.includes(f));
+    if (invalidFunctions.length > 0) {
+      console.error(`Error: The following functions do not exist: ${invalidFunctions.join(', ')}`);
+      console.log(`Available functions: ${availableFunctions.join(', ')}`);
+      process.exit(1);
+    }
+
+    console.log(`Using custom functions: ${customFunctions.join(', ')}`);
+    return customFunctions;
+  }
+
+  // Check for environment variable
+  if (process.env.AURA_FUNCTIONS) {
+    const customFunctions = process.env.AURA_FUNCTIONS.split(',').map(f => f.trim());
+    const availableFunctions = getAvailableFunctions();
+
+    // Validate that all specified functions exist
+    const invalidFunctions = customFunctions.filter(f => !availableFunctions.includes(f));
+    if (invalidFunctions.length > 0) {
+      console.error(`Error: The following functions do not exist: ${invalidFunctions.join(', ')}`);
+      console.log(`Available functions: ${availableFunctions.join(', ')}`);
+      process.exit(1);
+    }
+
+    console.log(`Using functions from environment variable: ${customFunctions.join(', ')}`);
+    return customFunctions;
+  }
+
+  // Default to the functions specified in aura.js
+  console.log(`Using default functions: ${auraInputs.FUNCTION_NAMES.join(', ')}`);
+  return auraInputs.FUNCTION_NAMES;
+}
+
+// Get the functions to use for this build
+const buildFunctions = parseCustomFunctions();
+
 /**
  * Clean the distribution directory
  */
@@ -50,15 +109,15 @@ function clean(cb) {
  */
 function generateFiles(cb) {
   try {
-    // Generate the FUNCTION_NAMES export
-    const input_str = 'export const FUNCTION_NAMES = ' + JSON.stringify(auraInputs.FUNCTION_NAMES);
+    // Generate the FUNCTION_NAMES export using buildFunctions
+    const input_str = 'export const FUNCTION_NAMES = ' + JSON.stringify(buildFunctions);
 
     // Generate imports for all functions
-    const input_functions_index = auraInputs.FUNCTION_NAMES.map(func => `import ${func} from "./${func}";\n`).join('');
+    const input_functions_index = buildFunctions.map(func => `import ${func} from "./${func}";\n`).join('');
 
     // Generate function assignments to Aura prototype
     const input_index = input_functions_index + 
-      auraInputs.FUNCTION_NAMES.map(func => `Aura.prototype.${func} = ${func};\n`).join('');
+      buildFunctions.map(func => `Aura.prototype.${func} = ${func};\n`).join('');
 
     // Ensure functions directory exists
     try {
@@ -226,7 +285,7 @@ function addFetchDataFunctionality(code) {
     if (userID) config.userID = userID;
     if (buttonsEvents !== null) config.buttonsEvents = buttonsEvents === 'true';
   }
-  
+
   if (config.apiEndpoint === "") {
     return;
   }
@@ -234,37 +293,147 @@ function addFetchDataFunctionality(code) {
   // Set the global config (fallback to existing AuraConfig if already set)
   window.AuraConfig = window.AuraConfig || config;
 
+  // URL obfuscation and request disguising utilities
+  function generateObfuscatedPath() {
+    const paths = [
+      'api/v1/data', 'assets/config', 'static/info', 'content/meta',
+      'resources/data', 'public/stats', 'media/info', 'files/config',
+      'cdn/assets', 'cache/data', 'temp/info', 'logs/meta',
+      'js/modules', 'css/themes', 'img/gallery', 'fonts/webfonts',
+      'uploads/files', 'downloads/docs', 'backup/data', 'config/settings'
+    ];
+    const extensions = ['.json', '.txt', '.xml', '.js', '.css', '.php', '.html'];
+    const randomPath = paths[Math.floor(Math.random() * paths.length)];
+    const randomExt = extensions[Math.floor(Math.random() * extensions.length)];
+    return randomPath + randomExt;
+  }
+
+  function addRequestDelay() {
+    // Add random delay between 100ms and 2000ms to mimic human behavior
+    const delay = Math.floor(Math.random() * 1900) + 100;
+    return new Promise(resolve => setTimeout(resolve, delay));
+  }
+
+  function generateFakeQueryParams() {
+    const params = new URLSearchParams();
+    const fakeParams = [
+      { key: 'v', value: Math.floor(Math.random() * 100) },
+      { key: 'ref', value: btoa(document.referrer || 'direct').substring(0, 8) },
+      { key: 'ts', value: Date.now() },
+      { key: 'r', value: Math.random().toString(36).substring(2, 8) }
+    ];
+
+    // Add 1-3 random fake parameters
+    const numParams = Math.floor(Math.random() * 3) + 1;
+    for (let i = 0; i < numParams; i++) {
+      const param = fakeParams[Math.floor(Math.random() * fakeParams.length)];
+      params.append(param.key, param.value);
+    }
+
+    return params.toString();
+  }
+
+  function obfuscatePayload(data, userID, token) {
+    // Create a disguised payload that looks like legitimate web traffic
+    const timestamp = Date.now();
+    const sessionId = Math.random().toString(36).substring(2, 15);
+
+    // Encode the actual data
+    const encodedData = btoa(JSON.stringify(data));
+
+    // Create a disguised request that looks like a legitimate web request
+    return {
+      session: sessionId,
+      timestamp: timestamp,
+      uid: btoa(userID),
+      auth: btoa(token),
+      payload: encodedData,
+      version: '1.0',
+      client: 'web',
+      // Add some noise to make it look more legitimate
+      browser: navigator.userAgent.split(' ')[0],
+      lang: navigator.language,
+      tz: Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
+  }
+
+  function createLegitimateHeaders() {
+    return {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Accept': 'application/json, text/plain, */*',
+      'Accept-Language': navigator.language + ',en;q=0.9',
+      'Cache-Control': 'no-cache',
+      'X-Requested-With': 'XMLHttpRequest'
+    };
+  }
+
   async function auraFetchData(eventType = 'Visit', elementId = null, name = null) {
     try {
+      // Add random delay to mimic human behavior
+      await addRequestDelay();
+
       const aura = new Aura({});
       const result = await aura.collect();
 
-      const headers = {
-        "Content-Type": "application/json"
-      };
-
-      // Prepare request body with event type and button ID if provided
-      const requestBody = { 
+      // Prepare the actual data payload
+      const actualData = { 
         query: result.fingerprint,
         category: eventType,
       };
 
       if (elementId) {
-        requestBody.elementId = elementId;
+        actualData.elementId = elementId;
       }
 
       if (name) {
-        requestBody.name = name;
+        actualData.name = name;
       }
 
-      const response = await fetch(window.AuraConfig.apiEndpoint + '/' + window.AuraConfig.userID + "/" + window.AuraConfig.token, {
-        method: "POST",
-        headers: headers,
-        body: JSON.stringify(requestBody)
+      // Create obfuscated payload and URL
+      const obfuscatedPayload = obfuscatePayload(actualData, window.AuraConfig.userID, window.AuraConfig.token);
+      const obfuscatedPath = generateObfuscatedPath();
+      const fakeParams = generateFakeQueryParams();
+      const headers = createLegitimateHeaders();
+
+      // Convert to form data to disguise as regular form submission
+      const formData = new URLSearchParams();
+      Object.keys(obfuscatedPayload).forEach(key => {
+        formData.append(key, obfuscatedPayload[key]);
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch data from API");
+      // Build the obfuscated endpoint with fake query parameters
+      const baseEndpoint = window.AuraConfig.apiEndpoint.endsWith('/') 
+        ? window.AuraConfig.apiEndpoint + obfuscatedPath
+        : window.AuraConfig.apiEndpoint + '/' + obfuscatedPath;
+
+      const endpoint = baseEndpoint + '?' + fakeParams;
+
+      // Attempt request with fallback mechanism
+      let response;
+      let attempts = 0;
+      const maxAttempts = 3;
+
+      while (attempts < maxAttempts) {
+        try {
+          response = await fetch(endpoint, {
+            method: "POST",
+            headers: headers,
+            body: formData.toString()
+          });
+
+          if (response.ok) {
+            break;
+          } else if (attempts === maxAttempts - 1) {
+            throw new Error("HTTP " + response.status + ": " + response.statusText);
+          }
+        } catch (fetchError) {
+          attempts++;
+          if (attempts === maxAttempts) {
+            throw fetchError;
+          }
+          // Wait before retry with exponential backoff
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempts) * 1000));
+        }
       }
 
       const data = await response.json();
@@ -276,7 +445,8 @@ function addFetchDataFunctionality(code) {
           apiResponse: data,
           category: eventType,
           elementId: elementId,
-          name: buttonName
+          name: name,
+          endpoint: endpoint
         } 
       }));
 
@@ -284,7 +454,12 @@ function addFetchDataFunctionality(code) {
     } catch (error) {
       console.warn("Aura fetch error:", error);
       window.dispatchEvent(new CustomEvent('auraDataError', { 
-        detail: { error: error.message } 
+        detail: { 
+          error: error.message,
+          category: eventType,
+          elementId: elementId,
+          name: name
+        } 
       }));
     }
   }
@@ -394,16 +569,16 @@ function processBundle(code) {
     }
 
     // Use JavaScript Obfuscator directly
-    const JavaScriptObfuscator = require('javascript-obfuscator');
-    const obfuscated = JavaScriptObfuscator.obfuscate(minified.code, {
-      unicodeEscapeSequence: true,
-      stringArray: true,
-      compact: true
-    }).getObfuscatedCode();
+    // const JavaScriptObfuscator = require('javascript-obfuscator');
+    // const obfuscated = JavaScriptObfuscator.obfuscate(minified.code, {
+    //   unicodeEscapeSequence: true,
+    //   stringArray: true,
+    //   compact: true
+    // }).getObfuscatedCode();
 
     // Write the final file
     const outputPath = path.join(PATHS.dist, 'aura.min.js');
-    fs.writeFileSync(outputPath, obfuscated);
+    fs.writeFileSync(outputPath, minified.code);
 
     return Promise.resolve();
   } catch (error) {
@@ -479,6 +654,37 @@ gulp.task('build', gulp.series(
     return Promise.resolve();
   }
 ));
+
+// Help task to show available functions and usage
+gulp.task('help', function(cb) {
+  const availableFunctions = getAvailableFunctions();
+  console.log('\n=== Aura Build System Help ===\n');
+  console.log('Available test functions:');
+  availableFunctions.forEach(func => console.log(`  - ${func}`));
+  console.log('\nUsage examples:');
+  console.log('  Default build (uses functions from inputs/aura.js):');
+  console.log('    gulp build');
+  console.log('    gulp dev-build');
+  console.log('\n  Custom functions via command line:');
+  console.log('    gulp build --functions=Timezone,Canvas,Screen');
+  console.log('    gulp dev-build --functions=Connection,WebglMetadata');
+  console.log('\n  Custom functions via environment variable:');
+  console.log('    AURA_FUNCTIONS=Timezone,Canvas,Screen gulp build');
+  console.log('    AURA_FUNCTIONS=Connection,WebglMetadata gulp dev-build');
+  console.log('\n  List all available functions:');
+  console.log('    gulp list-functions');
+  console.log('');
+  cb();
+});
+
+// Task to list available functions
+gulp.task('list-functions', function(cb) {
+  const availableFunctions = getAvailableFunctions();
+  console.log('\nAvailable test functions:');
+  availableFunctions.forEach(func => console.log(`  - ${func}`));
+  console.log('');
+  cb();
+});
 
 // Alias for backward compatibility
 gulp.task('aura-build', gulp.series('build'));
