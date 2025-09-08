@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://github.com/Litebrowsers/aura/releases/download/vv1.0.1/aura.js"></script>
+  <style>
+    @keyframes pulse {
+      0% { box-shadow: 0 0 15px 5px rgba(0, 255, 255, 0.6); }
+      50% { box-shadow: 0 0 25px 10px rgba(0, 255, 255, 0.8); }
+      100% { box-shadow: 0 0 15px 5px rgba(0, 255, 255, 0.6); }
+    }
+
+    @keyframes gradientBg {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes floatParticles {
+      0% { transform: translateY(0) rotate(0deg); }
+      100% { transform: translateY(-1000px) rotate(720deg); }
+    }
+
+    body {
+      background: radial-gradient(circle at center, #1a1a2e 0%, #0f0f1a 100%);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="%2300FFFF" opacity="0.3"/></svg>') repeat;
+      z-index: -2;
+      opacity: 0.2;
+    }
+
+    .aura {
+      position: relative;
+      padding: 1rem 2rem;
+      border-radius: 0.5rem;
+      background: rgba(30, 30, 50, 0.8); /* Dark semi-transparent background */
+      box-shadow: 0 0 20px 5px rgba(0, 255, 255, 0.6); /* Glowing effect */
+      animation: pulse 3s infinite ease-in-out;
+      transition: all 0.3s ease;
+      color: white;
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      backdrop-filter: blur(5px);
+    }
+
+    .aura:hover {
+      box-shadow: 0 0 30px 10px rgba(0, 255, 255, 0.8);
+    }
+
+    .aura::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      bottom: -10px;
+      left: -10px;
+      border-radius: 1rem;
+      background: linear-gradient(45deg, 
+        rgba(0, 255, 255, 0.3), 
+        rgba(120, 0, 255, 0.3), 
+        rgba(0, 120, 255, 0.3), 
+        rgba(0, 255, 180, 0.3));
+      background-size: 400% 400%;
+      animation: gradientBg 15s ease infinite;
+      z-index: -1;
+      filter: blur(8px);
+    }
+
+    .glow-text {
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(0, 255, 255, 0.5);
+    }
+
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    /* Particle effect */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background-color: rgba(0, 255, 255, 0.5);
+      border-radius: 50%;
+      box-shadow: 0 0 10px 2px rgba(0, 255, 255, 0.3);
+      animation: floatParticles 60s linear infinite;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen">
+<div class="particles">
+  <div class="particle" style="left: 10%; top: 20%; animation-delay: 0s;"></div>
+  <div class="particle" style="left: 20%; top: 80%; animation-delay: 2s;"></div>
+  <div class="particle" style="left: 30%; top: 45%; animation-delay: 4s;"></div>
+  <div class="particle" style="left: 40%; top: 65%; animation-delay: 6s;"></div>
+  <div class="particle" style="left: 50%; top: 30%; animation-delay: 8s;"></div>
+  <div class="particle" style="left: 60%; top: 70%; animation-delay: 10s;"></div>
+  <div class="particle" style="left: 70%; top: 20%; animation-delay: 12s;"></div>
+  <div class="particle" style="left: 80%; top: 50%; animation-delay: 14s;"></div>
+  <div class="particle" style="left: 90%; top: 30%; animation-delay: 16s;"></div>
+  <div class="particle" style="left: 15%; top: 60%; animation-delay: 18s;"></div>
+  <div class="particle" style="left: 25%; top: 30%; animation-delay: 20s;"></div>
+  <div class="particle" style="left: 35%; top: 70%; animation-delay: 22s;"></div>
+  <div class="particle" style="left: 45%; top: 40%; animation-delay: 24s;"></div>
+  <div class="particle" style="left: 55%; top: 60%; animation-delay: 26s;"></div>
+  <div class="particle" style="left: 65%; top: 35%; animation-delay: 28s;"></div>
+  <div class="particle" style="left: 75%; top: 75%; animation-delay: 30s;"></div>
+  <div class="particle" style="left: 85%; top: 25%; animation-delay: 32s;"></div>
+  <div class="particle" style="left: 95%; top: 55%; animation-delay: 34s;"></div>
+</div>
+<div class="text-center mb-6">
+  <div class="aura px-4 py-2 rounded-lg inline-block text-lg font-semibold glow-text">Aura</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl">
+  <div class="aura card rounded-lg p-6 flex flex-col items-center text-center">
+    <div class="text-3xl glow-text">&#128100;</div>
+    <h2 class="text-xl font-semibold mt-2 glow-text">Browser</h2>
+    <div id="browser">Browser family: </div>
+    <div id="browser_version">Browser version: </div>
+    <div id="os">OS: </div>
+  </div>
+  <div class="aura card rounded-lg p-6 flex flex-col items-center text-center">
+    <div class="text-3xl glow-text">&#128187;</div>
+    <h2 class="text-xl font-semibold mt-2 glow-text">Hardware</h2>
+    <div id="graphics">Graphics: </div>
+    <div id="screen">Screen: </div>
+  </div>
+  <div class="aura card rounded-lg p-6 flex flex-col items-center text-center">
+    <div class="text-3xl glow-text">&#128205;</div>
+    <h2 class="text-xl font-semibold mt-2 glow-text">Location</h2>
+    <div id="timezone">Timezone: </div>
+    <div id="country">Country: </div>
+    <div id="languages">Languages: </div>
+    <div id="locale">Locale: </div>
+  </div>
+</div>
+<footer class="mt-6 text-sm">
+  <div class="glow-text text-cyan-300">&copy; 2025 Aura Project. All Rights Reserved.</div>
+</footer>
+</body>
+<script>
+  const apiEndpoint = "https://api.extractip.com/checker";
+
+  async function fetchData() {
+    try {
+      const aura = new Aura({});
+      const result = await aura.collect();
+
+      const response = await fetch(apiEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ query: result.fingerprint })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch IP details");
+      }
+
+      const data = await response.json();
+      document.getElementById("country").textContent += data.country_name || "Unknown";
+      document.getElementById("timezone").textContent += result.fingerprint.Timezone.val.timezone || "Unknown";
+      document.getElementById("languages").textContent += result.fingerprint.Locale.val.navigatorLanguages || "Unknown";
+      document.getElementById("locale").textContent += result.fingerprint.Locale.val.locale || "Unknown";
+
+      let resultUA = result.fingerprint.SimpleUserAgent.val.UA;
+
+      function getPreferredBrowser(userAgent) {
+        let brand = "Unknown";
+        let version = "Unknown";
+
+        if (/Brave/i.test(userAgent)) {
+          brand = "Brave";
+          version = userAgent.match(/Brave\/([\d.]+)/)?.[1] || "Unknown";
+        } else if (/Firefox/i.test(userAgent)) {
+          brand = "Firefox";
+          version = userAgent.match(/Firefox\/([\d.]+)/)?.[1] || "Unknown";
+        } else if (/Chrome/i.test(userAgent) && !/Chromium/i.test(userAgent)) {
+          brand = "Google Chrome";
+          version = userAgent.match(/Chrome\/([\d.]+)/)?.[1] || "Unknown";
+        }
+
+        // Определение платформы
+        let platform = "Unknown";
+        if (/Windows NT/i.test(userAgent)) {
+          platform = "Windows";
+        } else if (/Mac OS X/i.test(userAgent)) {
+          platform = "macOS";
+        } else if (/Linux/i.test(userAgent) && !/Android/i.test(userAgent)) {
+          platform = "Linux";
+        } else if (/Android/i.test(userAgent)) {
+          platform = "Android";
+        } else if (/iPhone|iPad|iPod/i.test(userAgent)) {
+          platform = "iOS";
+        }
+
+        return { brand, version, platform };
+      }
+      let browserInfo = getPreferredBrowser(resultUA);
+
+      document.getElementById("browser").textContent += browserInfo.brand || "Unknown";
+      document.getElementById("browser_version").textContent += browserInfo.version || "Unknown";
+      document.getElementById("os").textContent += browserInfo.platform || "Unknown";
+
+      document.getElementById("screen").textContent += (result.fingerprint.Screen.val.width + "x" +  result.fingerprint.Screen.val.height) || "Unknown";
+      document.getElementById("graphics").textContent += result.fingerprint.WebglMetadata.val.webgl2Adapter || "Unknown";
+
+    } catch (error) {
+    }
+  }
+
+  fetchData();
+</script>
+
+</html>
