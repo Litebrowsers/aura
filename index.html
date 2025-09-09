@@ -201,23 +201,25 @@
         } else if (/Firefox/i.test(userAgent)) {
           brand = "Firefox";
           version = userAgent.match(/Firefox\/([\d.]+)/)?.[1] || "Unknown";
+        } else if (/Safari/i.test(userAgent) && !/Chrome/i.test(userAgent)) {
+          brand = "Safari";
+          version = userAgent.match(/Version\/([\d.]+)/)?.[1] || "Unknown";
         } else if (/Chrome/i.test(userAgent) && !/Chromium/i.test(userAgent)) {
           brand = "Google Chrome";
           version = userAgent.match(/Chrome\/([\d.]+)/)?.[1] || "Unknown";
         }
 
-        // Определение платформы
         let platform = "Unknown";
         if (/Windows NT/i.test(userAgent)) {
           platform = "Windows";
+        } else if (/iPhone|iPad|iPod/i.test(userAgent)) {
+          platform = "iOS";
         } else if (/Mac OS X/i.test(userAgent)) {
           platform = "macOS";
         } else if (/Linux/i.test(userAgent) && !/Android/i.test(userAgent)) {
           platform = "Linux";
         } else if (/Android/i.test(userAgent)) {
           platform = "Android";
-        } else if (/iPhone|iPad|iPod/i.test(userAgent)) {
-          platform = "iOS";
         }
 
         return { brand, version, platform };
