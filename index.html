@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://github.com/Litebrowsers/aura/releases/download/vv1.0.5/aura.min.js"></script>
+  <style>
+    @keyframes pulse {
+      0% { box-shadow: 0 0 15px 5px rgba(0, 255, 255, 0.6); }
+      50% { box-shadow: 0 0 25px 10px rgba(0, 255, 255, 0.8); }
+      100% { box-shadow: 0 0 15px 5px rgba(0, 255, 255, 0.6); }
+    }
+
+    @keyframes gradientBg {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    body {
+      background: radial-gradient(circle at center, #1a1a2e 0%, #0f0f1a 100%);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .aura {
+      position: relative;
+      padding: 1rem 2rem;
+      border-radius: 0.5rem;
+      background: rgba(30, 30, 50, 0.8); /* Dark semi-transparent background */
+      box-shadow: 0 0 20px 5px rgba(0, 255, 255, 0.6); /* Glowing effect */
+      animation: pulse 3s infinite ease-in-out;
+      transition: all 0.3s ease;
+      color: white;
+      border: 1px solid rgba(0, 255, 255, 0.3);
+      backdrop-filter: blur(5px);
+    }
+
+    .aura:hover {
+      box-shadow: 0 0 30px 10px rgba(0, 255, 255, 0.8);
+    }
+
+    .glow-text {
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.8), 0 0 20px rgba(0, 255, 255, 0.5);
+    }
+
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    
+    #json-output {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        background: rgba(0,0,0,0.3);
+        border: 1px solid rgba(0, 255, 255, 0.3);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-top: 2rem;
+        max-height: 500px;
+        overflow-y: auto;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen p-4">
+
+<div class="text-center mb-6">
+  <div class="aura px-4 py-2 rounded-lg inline-block text-lg font-semibold glow-text">Aura Demo</div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl">
+  <div class="aura card rounded-lg p-6 flex flex-col items-center text-center">
+    <div class="text-3xl glow-text">&#128100;</div>
+    <h2 class="text-xl font-semibold mt-2 glow-text">Browser</h2>
+    <div id="browser">Browser family: </div>
+    <div id="browser_version">Browser version: </div>
+    <div id="os">OS: </div>
+  </div>
+  <div class="aura card rounded-lg p-6 flex flex-col items-center text-center">
+    <div class="text-3xl glow-text">&#128187;</div>
+    <h2 class="text-xl font-semibold mt-2 glow-text">Hardware</h2>
+    <div id="graphics">Graphics: </div>
+    <div id="screen">Screen: </div>
+  </div>
+  <div class="aura card rounded-lg p-6 flex flex-col items-center text-center">
+    <div class="text-3xl glow-text">&#128205;</div>
+    <h2 class="text-xl font-semibold mt-2 glow-text">Location</h2>
+    <div id="timezone">Timezone: </div>
+    <div id="languages">Languages: </div>
+    <div id="locale">Locale: </div>
+  </div>
+</div>
+
+<div class="max-w-4xl w-full text-center mt-8">
+    <button id="collect-btn" class="aura card rounded-lg p-4 glow-text text-xl">Collect Fingerprint</button>
+</div>
+
+<div class="max-w-4xl w-full">
+    <h2 class="text-2xl font-semibold mt-8 glow-text text-center">Full Fingerprint Data</h2>
+    <pre id="json-output" class="text-left text-sm"></pre>
+</div>
+
+
+<footer class="mt-6 text-sm">
+  <div class="glow-text text-cyan-300">&copy; 2025 Aura Project. All Rights Reserved.</div>
+</footer>
+
+<script>
+  async function collectAndDisplayData() {
+    try {
+      const aura = new Aura({});
+      const result = await aura.collect();
+      const fingerprint = result.fingerprint;
+
+      // Display full JSON output
+      document.getElementById("json-output").textContent = JSON.stringify(fingerprint, null, 2);
+
+      // --- Populate UI cards ---
+      
+      // Location card
+      document.getElementById("timezone").textContent = "Timezone: " + (fingerprint.Timezone?.val?.timezone || "Unknown");
+      document.getElementById("languages").textContent = "Languages: " + (fingerprint.Locale?.val?.navigatorLanguages || "Unknown");
+      document.getElementById("locale").textContent = "Locale: " + (fingerprint.Locale?.val?.locale || "Unknown");
+
+      // Browser card
+      const userAgent = fingerprint.SimpleUserAgent?.val?.UA || "";
+      function getBrowserInfo(ua) {
+        let brand = "Unknown", version = "Unknown", platform = "Unknown";
+        if (/Brave/i.test(ua)) {
+          brand = "Brave";
+          version = ua.match(/Brave\/([\d.]+)/)?.[1] || "Unknown";
+        } else if (/Firefox/i.test(ua)) {
+          brand = "Firefox";
+          version = ua.match(/Firefox\/([\d.]+)/)?.[1] || "Unknown";
+        } else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) {
+          brand = "Safari";
+          version = ua.match(/Version\/([\d.]+)/)?.[1] || "Unknown";
+        } else if (/Chrome/i.test(ua) && !/Chromium/i.test(ua)) {
+          brand = "Google Chrome";
+          version = ua.match(/Chrome\/([\d.]+)/)?.[1] || "Unknown";
+        }
+
+        if (/Windows NT/i.test(ua)) platform = "Windows";
+        else if (/iPhone|iPad|iPod/i.test(ua)) platform = "iOS";
+        else if (/Mac OS X/i.test(ua)) platform = "macOS";
+        else if (/Linux/i.test(ua) && !/Android/i.test(ua)) platform = "Linux";
+        else if (/Android/i.test(ua)) platform = "Android";
+        
+        return { brand, version, platform };
+      }
+      const browserInfo = getBrowserInfo(userAgent);
+      document.getElementById("browser").textContent = "Browser family: " + (browserInfo.brand || "Unknown");
+      document.getElementById("browser_version").textContent = "Browser version: " + (browserInfo.version || "Unknown");
+      document.getElementById("os").textContent = "OS: " + (browserInfo.platform || "Unknown");
+
+      // Hardware card
+      document.getElementById("screen").textContent = "Screen: " + (fingerprint.Screen?.val?.width + "x" +  fingerprint.Screen?.val?.height || "Unknown");
+      document.getElementById("graphics").textContent = "Graphics: " + (fingerprint.WebglMetadata?.val?.webgl2Adapter || "Unknown");
+
+    } catch (error) {
+      console.error("Error collecting fingerprint:", error);
+      document.getElementById("json-output").textContent = "Error collecting fingerprint. See console for details.";
+    }
+  }
+
+  document.getElementById('collect-btn').addEventListener('click', collectAndDisplayData);
+
+  // Initial collection on page load
+  collectAndDisplayData();
+</script>
+
+</body>
+</html>
