@@ -3,6 +3,8 @@
 A powerful client-side browser fingerprinting and metrics collection library designed for accurate user identification 
 and analytics.
 
+[Live Demo](https://litebrowsers.github.io/aura/)
+
 ## Overview
 
 Aura is a proprietary JavaScript library developed by Litebrowsers that collects comprehensive browser fingerprinting 
