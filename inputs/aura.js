@@ -12,5 +12,5 @@ thor betson at gmail dot com
 */
 
 module.exports = {
-    FUNCTION_NAMES: ["Timezone","Locale","Screen","SimpleUserAgent", "Page", "Canvas", "Font", "WebglMetadata"]
+    FUNCTION_NAMES: ["Timezone","Locale","Screen","SimpleUserAgent", "Page", "Canvas", "Font", "WebglMetadata", "Enumerator"]
 };
