@@ -17,10 +17,8 @@ export default function () {
   const canvas = document.createElement('canvas')
   canvas.width = width
   canvas.height = height
-  // Generate random color in hex format (#FF0000)
-  const randomColor = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0').toUpperCase()
 
-  const canvasResults = getHashesForCanvas(canvas, randomColor, false)
+  const canvasResults = getHashesForCanvas(canvas, false)
 
   const notSupportedMessage = -1
   let offscreenResults = {
@@ -28,14 +26,13 @@ export default function () {
     rSum: notSupportedMessage,
     gSum: notSupportedMessage,
     bSum: notSupportedMessage,
-    aSum: notSupportedMessage,
-    color: notSupportedMessage
+    aSum: notSupportedMessage
   }
   try {
     const offscreenCanvas = document.createElement('canvas')
     offscreenCanvas.width = width
     offscreenCanvas.height = height
-    offscreenResults = getHashesForCanvas(offscreenCanvas, randomColor, true)
+    offscreenResults = getHashesForCanvas(offscreenCanvas, true)
   } catch (error) {
   }
   const offWorks = canvasResults.rSum === offscreenResults.rSum &&
@@ -49,24 +46,37 @@ export default function () {
     aSum: canvasResults.aSum,
     pixelSum: canvasResults.pixelSum,
     offWorks: offWorks,
-    color: randomColor,
     protocolVersion: 1
   }
 }
 
-function renderOnCanvas (canvas, renderer, color) {
-  var ctx = canvas.getContext('2d')
+function renderOnCanvas (canvas, renderer) {
+  const ctx = canvas.getContext('2d');
+  const colors = ['#FF0000', '#00FF00', '#0000FF'];
 
-  // Square size (even number)
-  const squareSize = 18
-  // Set the random color
-  ctx.fillStyle = color
-  // Draw square
-  ctx.fillRect(5, 5, squareSize, squareSize)
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Circle 1
+  ctx.fillStyle = colors[0];
+  ctx.beginPath();
+  ctx.arc(15, 10, 8, 0, 2 * Math.PI);
+  ctx.fill();
+
+  // Circle 2
+  ctx.fillStyle = colors[1];
+  ctx.beginPath();
+  ctx.arc(10, 20, 6, 0, 2 * Math.PI);
+  ctx.fill();
+
+  // Circle 3
+  ctx.fillStyle = colors[2];
+  ctx.beginPath();
+  ctx.arc(20, 20, 4, 0, 2 * Math.PI);
+  ctx.fill();
 
   if (renderer !== null) {
-    var bitmapOne = canvas.transferToImageBitmap()
-    renderer.transferFromImageBitmap(bitmapOne)
+    const bitmapOne = canvas.transferToImageBitmap();
+    renderer.transferFromImageBitmap(bitmapOne);
   }
 }
 
@@ -101,13 +111,13 @@ function extractHashesFromCanvas(canvasElement, canvasObject) {
   }
 }
 
-function getHashesForCanvas (canvas, color, isOffscreen) {
+function getHashesForCanvas (canvas, isOffscreen) {
   if (isOffscreen) {
     var offscreenCanvas = new OffscreenCanvas(canvas.width, canvas.height)
-    renderOnCanvas(offscreenCanvas, null, color)
+    renderOnCanvas(offscreenCanvas, null)
     return extractHashesFromCanvas(offscreenCanvas, null)
   } else {
-    renderOnCanvas(canvas, null, color)
+    renderOnCanvas(canvas, null)
     return extractHashesFromCanvas(canvas, null)
   }
 }
