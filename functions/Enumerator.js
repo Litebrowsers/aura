@@ -18,18 +18,11 @@ export default function () {
     for (const i in navigator) {
         navigatorKeys.push(navigator[i])
     }
-    const iframe = document.createElement('iframe')
-    iframe.style.display = 'none'
-    iframe.src = 'www.google.com'
-    document.body.appendChild(iframe)
 
-    const iContentWindow = enumerate(iframe.contentWindow, Object.keys(iframe.contentWindow))
-    document.body.removeChild(iframe)
     return {
         window: enumerate(window, windowKeys),
         console: enumerate(console, consoleKeys),
         navigator: enumerateNavigator(),
-        icontentWindow: iContentWindow,
         version: 1
     }
 }
