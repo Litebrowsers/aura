@@ -59,15 +59,14 @@ function enumerateNavigator () {
                 countOfUnknowns += 1
         }
     }
-    return {
-        objects: countOfObjects,
-        strings: countOfStrings,
-        booleans: countOfBooleans,
-        numbers: countOfNumbers,
-        functions: countOfFunctions,
-        uncertainties: countOfUncertainties,
-        unknowns: countOfUnknowns
-    }
+    return [countOfObjects,
+        countOfStrings,
+        countOfBooleans,
+        countOfNumbers,
+        countOfFunctions,
+        countOfUncertainties,
+        countOfUnknowns
+    ]
 }
 
 function enumerate (parent, fields) {
@@ -102,13 +101,12 @@ function enumerate (parent, fields) {
                 countOfUnknowns += 1
         }
     }
-    return {
-        objects: countOfObjects,
-        strings: countOfStrings,
-        booleans: countOfBooleans,
-        numbers: countOfNumbers,
-        functions: countOfFunctions,
-        uncertainties: countOfUncertainties,
-        unknowns: countOfUnknowns
-    }
+    return [countOfObjects,
+        countOfStrings,
+        countOfBooleans,
+        countOfNumbers,
+        countOfFunctions,
+        countOfUncertainties,
+        countOfUnknowns
+    ]
 }

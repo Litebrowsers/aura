@@ -21,8 +21,10 @@ export default function () {
             const webgl2 = response[1]
 
             resolve({
-                webglAdapter: webgl ? (webgl.vendor + ' / ' + webgl.renderer) : undefined,
-                webgl2Adapter: webgl2 ? (webgl2.vendor + ' / ' + webgl2.renderer) : undefined,
+                webglAdapterVendor: webgl ? (webgl.vendor) : undefined,
+                webglAdapterRenderer: webgl ? (webgl.renderer) : undefined,
+                webgl2AdapterVendor: webgl2 ? (webgl2.vendor) : undefined,
+                webgl2AdapterRenderer: webgl2 ? (webgl2.renderer) : undefined,
                 protocolVersion: 1
             })
         })

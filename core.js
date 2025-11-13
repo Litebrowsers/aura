@@ -115,4 +115,95 @@ Aura.prototype.collect = function () {
   });
 }
 
+
+
+// Simple string hashing function
+Aura.prototype.hashString = function(str) {
+  let hash = 0;
+  if (str.length === 0) {
+    return hash;
+  }
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return hash;
+};
+
+// Format fingerprint for gtag
+Aura.prototype.formatForGtag = function() {
+  const formattedData = {};
+  const maxLength = 100; // Max length for gtag event parameter values
+  const keysToHash = ['SimpleUserAgent_UA', 'WebglMetadata_webglAdapter', 'WebglMetadata_webgl2Adapter'];
+
+  for (const key in this.fingerprint) {
+    if (this.fingerprint.hasOwnProperty(key)) {
+      const entry = this.fingerprint[key];
+      if (entry && typeof entry.val === 'object' && entry.val !== null) {
+        for (const subKey in entry.val) {
+          if (entry.val.hasOwnProperty(subKey)) {
+            let value = entry.val[subKey];
+            const newKey = `${key}_${subKey}`;
+
+            if (newKey.includes('protocolVersion')) {
+              continue;
+            }
+
+            if (Array.isArray(value)) {
+              value = value.join(',');
+            }
+
+            if (typeof value === 'string') {
+              if (keysToHash.includes(newKey)) {
+                value = this.hashString(value);
+              } else {
+                value = value.trim();
+                if (value.length > maxLength) {
+                  value = value.substring(0, maxLength);
+                }
+              }
+            }
+            
+            if (value !== '' && value !== null && value !== undefined) {
+                formattedData[newKey] = value;
+            }
+          }
+        }
+      } else if (entry && entry.val !== undefined) {
+        if (key.includes('protocolVersion')) {
+          continue;
+        }
+        let value = entry.val;
+        if (Array.isArray(value)) {
+            value = value.join(',');
+        }
+        if (typeof value === 'string') {
+            value = value.trim();
+            if (value.length > maxLength) {
+                value = value.substring(0, maxLength);
+            }
+        }
+
+        if (value !== '' && value !== null && value !== undefined) {
+            formattedData[key] = value;
+        }
+      }
+    }
+  }
+  return formattedData;
+};
+
+
+// Send fingerprint to gtag
+Aura.prototype.sendGtag = function(eventName = 'aura_fingerprint', options = {}) {
+  if (typeof gtag === 'function') {
+    const fingerprintData = this.formatForGtag();
+    const eventData = Object.assign(fingerprintData, options);
+    gtag('event', eventName, eventData);
+  } else {
+    console.warn('gtag is not defined. Cannot send fingerprint.');
+  }
+};
+
 export default Aura
