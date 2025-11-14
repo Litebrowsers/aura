@@ -1,6 +1,6 @@
 {
   "name": "aura",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Client-side metrics collection library.",
   "main": "index.js",
   "scripts": {
