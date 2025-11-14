@@ -93,6 +93,15 @@ jobs:
             });
             ```
             
+            ### GTAG operations
+            ```javascript
+            const aura = new Aura({});
+            const result = await aura.collect();
+            ...
+            aura.sendGtag(); // automated sending.
+            ...
+            aura.formatForGtag(); // get prepared list of gtag parameters.
+            ```
             For more information, see the [README](https://github.com/${{ github.repository }}/blob/main/README.md).
           draft: false
           prerelease: false
